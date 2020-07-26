@@ -1,10 +1,117 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base/base.html' %}
+{% block title %}Contact Us{% endblock %}
+{% load static %}
+{% block css %}{% endblock %}
 
-</body>
-</html>
+{% block body %}
+        <div class="row">
+            <div class="col-lg-8" id="map"></div>
+            <div class="col-lg-4 bg-white shadow-lg rounded-lg">
+                <h1>Contact Us</h1>
+                <p style="font-size: 24px">Get in touch with us</p>
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Name</label>
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="message">Message</label>
+                        <textarea class="form-control" rows="9" name="message" id="message"
+                                  placeholder="Message"></textarea>
+                    </div>
+                    <div class="mb-3 text-center">
+                        <input type="submit" value="Submit" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+        </div>
+{% endblock %}
+
+{% block js %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZiYDHj6hnf4gf1oJVx24qWMdPvlxRsDQ&callback=initMap"
+            async defer></script>
+    <script type="text/javascript">
+        function initMap() {
+            var mandir = {lat: 23.035137, lng: 72.500420};
+
+            var map = new google.maps.Map(
+                document.getElementById('map'), {zoom: 12.5, center: mandir});
+
+            var mandir_marker_image = {
+                url: '{% static 'Images/hanuman-mandir-pointer-icon.png' %}'
+            }
+
+            var mandir_marker = new google.maps.Marker({position: mandir, icon: mandir_marker_image, map: map});
+
+            var mandirToolTip = '<div id="content">' +
+                '<p id="tooltip-heading" class="tooltip-heading mb-1">Where You will be volunteering</p>' +
+                '<div id="bodyContent mb-0">' +
+                '<p class="mb-0"><b>Tatvasoft House</b> <br /> Rajpath Rangoli Road, Ahmedabad, Gujarat,India</p>' +
+                '<p class="tooltip-footer mb-0"> 220m from stay </p>' +
+                '</div>' +
+                '</div>';
+
+            var mandirinfo = new google.maps.InfoWindow({
+                content: mandirToolTip,
+                maxWidth: 288
+            });
+
+            mandir_marker.addListener('mouseover', function () {
+                mandirinfo.open(map, mandir_marker);
+            });
+            mandir_marker.addListener('mouseout', function () {
+                mandirinfo.close(map, mandir_marker);
+            });
+
+            {% if lat is not None and lng is not None %}
+                var user = {lat: {{lat}}, lng: {{lng}}};
+                var user_marker = new google.maps.Marker({
+                    position: user,
+                    icon: '{% static 'SVG/user-location-pointer.svg' %}',
+                    map: map
+                });
+
+                var UserTooltip = '<div id="content">' +
+                    '<p id="tooltip-heading" class="tooltip-heading mb-1">Where You will be staying</p>' +
+                    '<div id="bodyContent mb-0">' +
+                    '<p class="mb-0"><b>Vaikunth Bunglows</b> <br /> New India Colony Road, Nikol, Ahmedabad, Gujarat,India</p>' +
+                    '<p class="tooltip-footer mb-0"> 220m from volunteering work </p>' +
+                    '</div>' +
+                    '</div>';
+                '</div>';
+
+                var UserInfo = new google.maps.InfoWindow({
+                    content: UserTooltip,
+                    maxWidth: 245
+                });
+
+                user_marker.addListener('mouseover', function () {
+                    UserInfo.open(map, user_marker);
+                });
+                user_marker.addListener('mouseout', function () {
+                    UserInfo.close(map, user_marker);
+                });
+
+                var lineSymbol = {
+                    path: 'M 0,-1 0,1',
+                    strokeOpacity: 1,
+                    scale: 3
+                };
+                var line = new google.maps.Polyline({
+                    path: [{lat: 23.035137, lng: 72.500420}, {lat: {{ lat }}, lng: {{lng}}}],
+                    strokeOpacity: 0,
+                    icons: [{
+                        icon: lineSymbol,
+                        offset: '0',
+                        repeat: '13px'
+                    }],
+                    map: map
+                });
+            {% endif %}
+        }
+    </script>
+{% endblock %}
